@@ -25,8 +25,8 @@ public class UserController {
     }
 
     @GetMapping("/adults")
-    public List<String> getAdultsUserName(){
-        return userService.getAdultUsers();
+    public List<String> getAdultsUserName(
+            @RequestParam(value = "initial", required = false) String initial) {
+        return userService.getAdultUsers(initial);
     }
-    }
-
+}

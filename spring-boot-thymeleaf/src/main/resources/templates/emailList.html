@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Email List</title>
+    <link rel="stylesheet" href="../static.css/style.css">
+</head>
+<body>
+<h1>用户列表</h1>
+<!-- 新增邮箱 -->
+<form action="/addEmail" method="post">
+    <input type="text" name="name" placeholder="输入姓名" id="name" required>
+    <input type="email" name="email" placeholder="输入邮箱" id="email" required>
+    <button type="submit">添加用户</button>
+</form>
+<!-- 邮箱列表 -->
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>姓名</th>
+        <th>邮箱</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="email : ${emails}">
+        <td th:text="${email.id}"></td>
+        <td th:text="${email.name}"></td>
+        <td th:text="${email.email}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+<style>
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        max-width: 700px;
+        margin: 0 auto;
+        background-color: #f5f5f5;
+    }
+
+    h1 {
+        color: #2c3e50;
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #3498db;
+        color: #ffffff;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    button {
+        background-color: #3498db;
+        color: #ffffff;
+        border: none;
+        padding: 8px 12px;
+        margin-left: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        width:90px
+    }
+
+    button:hover {
+        background-color: #2980b9;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: calc(100% - 140px);
+        margin-right: 10px;
+    }
+
+    form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+</html>

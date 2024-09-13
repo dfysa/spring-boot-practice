@@ -1,0 +1,14 @@
+##
+##
+##    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 开启控制台日志输出
+##  configuration:
+##  type-aliases-package: top.fyl.springboot.thymeleaf.model
+##  mapper-locations: classpath*:mappers/*.xml
+##mybatis:
+##
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    password:  lfy31678
+#    username: root
+#    url: jdbc:mysql://localhost:3306/todolist?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
+#  datasource:
+#spring:

@@ -15,7 +15,7 @@ import java.util.List;
 public class MeetingService {
     private final List<Meeting> meetings =new ArrayList<>();
 
-    public  boolean isRoomAvilable(Meeting newMeeting){
+    public  boolean isRoomAvailable(Meeting newMeeting){
         return meetings.stream()
                 .noneMatch(exitingMeeting->exitingMeeting.isOverlapping(newMeeting));
     }

@@ -26,12 +26,16 @@ public class MeetingController {
 
     @PostMapping("/check")
     public ResponseEntity<String> check (@RequestBody Meeting meeting){
-        if (meetingService.isRoomAvilable(meeting)){
+        // 调⽤服务⽅法检查会议室是否在该时间段内可⽤
+        if (meetingService.isRoomAvailable(meeting)) {
+            // 如果会议室可⽤，则添加会议并返回成功消息
             meetingService.addMeeting(meeting);
-            return ResponseEntity.ok("会议室可用");
-        }else {
-            return ResponseEntity.status(409).body("会议室不可用");
+            return ResponseEntity.ok("会议室可⽤，会议已预订！");
+        } else {
+            // 如果会议室不可⽤，返回冲突状态和不可⽤的提示信息
+            return ResponseEntity.status(409).body("会议室不可⽤！");
         }
-        }
+
     }
+}
 

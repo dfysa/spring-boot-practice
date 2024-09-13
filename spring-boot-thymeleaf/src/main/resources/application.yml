@@ -1,0 +1,20 @@
+logging:
+  level:
+    root: info
+    top.fyl.springboot.thymeleaf: debug
+
+spring:
+  thymeleaf:
+    cache: false # 禁用 Thymeleaf 的缓存
+  datasource:
+    url: jdbc:mysql://localhost:3306/todolist?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: lfy31678
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#  profiles:
+#    active: dev
+
+mybatis-plus:
+  type-aliases-package: top.fyl.springboot.thymeleaf.model
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 开启控制台日志输出
