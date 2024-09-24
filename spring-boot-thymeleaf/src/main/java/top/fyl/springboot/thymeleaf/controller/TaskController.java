@@ -33,24 +33,21 @@ public class TaskController {
 
     @GetMapping("/taskList")
     public String taskList(@RequestParam(defaultValue = "1") int pageNum, Model model) {
-        int pageSize = 3; // 每页显示的任务数量
-        String sort = "priority DESC"; // 按优先级从高到低排序
+        int pageSize = 3;
+        String sort = "priority DESC";
 
         IPage<Task> taskPage = taskService.getTasksPage(pageNum, pageSize, sort);
 
-        // 调试输出
-        System.out.println("Current Page: " + pageNum);
-        System.out.println("Total Records: " + taskPage.getTotal());
-        System.out.println("Total Pages: " + taskPage.getPages());
-        System.out.println("Tasks: " + taskPage.getRecords());
+        // 获取最多三条截止日期最近且未完成的任务
+        List<Task> nearestDeadlineTasks = taskService.getTasksWithNearestDeadline();
 
         model.addAttribute("tasks", taskPage.getRecords());
-        model.addAttribute("currentPage", pageNum); // 当前页码
-        model.addAttribute("totalPages", taskPage.getPages()); // 总页数
+        model.addAttribute("nearestDeadlineTasks", nearestDeadlineTasks);
+        model.addAttribute("currentPage", pageNum);
+        model.addAttribute("totalPages", taskPage.getPages());
 
-        return "taskList"; // 返回 Thymeleaf 模板名称
+        return "taskList";
     }
-
     @PostMapping("/addTask")
     public String addTask(@RequestParam String description, @RequestParam int priority, @RequestParam String deadline) {
         Task newTask = new Task();
@@ -58,23 +55,27 @@ public class TaskController {
         newTask.setPriority(priority);
         newTask.setDeadline(LocalDate.parse(deadline));
         newTask.setCompleted(false);
-        taskMapper.insert(newTask); // 使用 MyBatis-Plus 的 insert 方法
+        // 使用 MyBatis-Plus 的 insert 方法
+        taskMapper.insert(newTask);
         return "redirect:/taskList";
     }
 
     @PostMapping("/updateTask")
     public String updateTask(@RequestParam Long id) {
-        Task task = taskMapper.selectById(id); // 使用 MyBatis-Plus 的 selectById 方法
+        // 使用 MyBatis-Plus 的 selectById 方法
+        Task task = taskMapper.selectById(id);
         if (task != null) {
             task.setCompleted(!task.isCompleted());
-            taskMapper.updateById(task); // 使用 MyBatis-Plus 的 updateById 方法
+            // 使用 MyBatis-Plus 的 updateById 方法
+            taskMapper.updateById(task);
         }
         return "redirect:/taskList";
     }
 
     @PostMapping("/deleteTask")
     public String deleteTask(@RequestParam Long id) {
-        taskMapper.deleteById(id); // 使用 MyBatis-Plus 的 deleteById 方法
+        // 使用 MyBatis-Plus 的 deleteById 方法
+        taskMapper.deleteById(id);
         return "redirect:/taskList";
     }
 }

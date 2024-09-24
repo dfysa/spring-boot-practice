@@ -11,7 +11,7 @@
 <h1>待办清单</h1>
 
 <!-- 新增任务 -->
-<form action="/addTask" method="post" style="background-color: #ffffff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+<form action="/addTask" method="post" style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
     <div style="margin-bottom: 15px;">
         <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">新任务：</label>
         <input type="text" id="description" name="description" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -31,10 +31,22 @@
 </form>
 
 <hr>
-
+<h2>最近截止的任务</h2>
+<div th:if="${nearestDeadlineTasks != null && nearestDeadlineTasks.size() > 0}">
+    <div th:each="task : ${nearestDeadlineTasks}" style="background-color: #f1c40f; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+        <span th:text="'任务描述：' + ${task.description}"></span>
+        <span th:text="'优先级：' + ${task.priority}" style="margin-left: 20px;"></span>
+        <span th:text="'截止日期：' + ${task.deadline}" style="margin-left: 20px;"></span>
+    </div>
+</div>
+<div th:if="${nearestDeadlineTasks == null || nearestDeadlineTasks.size() == 0}">
+    <p>没有即将截止的未完成任务。</p>
+</div>
 <!-- 任务列表 -->
 <ul>
-    <li th:each="task : ${tasks}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 10px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <li th:each="task : ${tasks}"
+        th:classappend="${task.completed} ? 'completed' : ''"
+        style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 10px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <div>
             <span th:text="${task.description}" style="margin-right: 10px;"></span>
             <span th:text="${task.priority}" style="margin-right: 10px;"></span>
@@ -43,7 +55,9 @@
         <div style="display: flex; gap: 5px;">
             <form action="/updateTask" method="post" style="margin: 0;">
                 <input type="hidden" name="id" th:value="${task.id}">
-                <button type="submit" style="background-color: #3498db; color: #ffffff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s ease;">切换状态</button>
+                <button type="submit" style="background-color: #3498db; color: #ffffff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s ease;">
+                    <span th:text="${task.completed ? '未完成' : '完成'}"></span>
+                </button>
             </form>
             <form action="/deleteTask" method="post" style="margin: 0;">
                 <input type="hidden" name="id" th:value="${task.id}">
@@ -89,6 +103,10 @@
     ul {
         list-style-type: none;
         padding: 0;
+    }
+    .completed {
+        text-decoration: line-through;
+        color: #7f8c8d;
     }
 
     li {

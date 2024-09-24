@@ -1,0 +1,88 @@
+family:
+  family-name: "family"
+  father: ${father.name:zhangsan }
+  mother: "Lucy"
+  child: "Tom"
+  age: ${random.int[3,30]}
+
+server:
+  host: "localhost"
+  port:  ${SERVER_PORT:8080}
+  context-path: "/api"
+
+person:
+  first-name: ${first-name:John}
+  last-name: ${last-name:Doe}
+  age: ${random.int(20,50)}
+  id: ${random.uuid}
+  phone: ${phone.number:1234567890}
+
+spring:
+   mail:
+    host: smtp.qq.com
+    username: 846241197@qq.com
+    password: nhgqcwfqrmdybcfj
+    properties:
+     mail.smtp.auth: true
+
+
+     mail.smtp.starttls.enable: true
+
+
+   config:
+    encoding: UTF-8
+
+   profiles:
+     active: test
+
+
+
+
+student:
+  name: 张小飞
+  age: 20
+  happy: true
+  birth: 2004/01/01
+  map: {k1: v1,k2: v2}
+  list:
+    - code
+    - read
+    - music
+  dog:
+   name: ⻁⼦
+   age: 11
+
+
+db:
+  url: jdbc:mysql://localhost:3306/spring_boot?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
+  username: root
+  password: lfy31678
+  driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+
+aliyun:
+  oss:
+   endpoint:  # 你的OSS服务地址
+   accessKeyId: # 你的Access Key ID
+   accessKeySecret:  # 你的Access Key Secret
+   bucketName:  # 你的Bucket名称
+
+
+
+
+jwt:
+  secret: "helloworld"
+  expiration:  3600000
+
+
+custom:
+   qrcode:
+       content: "https://www.baidu.com"
+   log:
+    level: "INFO"
+   backup:
+    location: "E:/test/backup.log"
+#spring:
+#  mail:
+#    host: smtp.qq.com
