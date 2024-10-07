@@ -63,10 +63,6 @@ db:
 
 aliyun:
   oss:
-   endpoint:  # 你的OSS服务地址
-   accessKeyId: # 你的Access Key ID
-   accessKeySecret:  # 你的Access Key Secret
-   bucketName:  # 你的Bucket名称
 
 
 
