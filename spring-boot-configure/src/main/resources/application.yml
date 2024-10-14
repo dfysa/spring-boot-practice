@@ -63,10 +63,14 @@ db:
 
 aliyun:
   oss:
+<<<<<<< HEAD
    endpoint:  # 你的OSS服务地址
    accessKeyId: # 你的Access Key ID
    accessKeySecret:  # 你的Access Key Secret
    bucketName:  # 你的Bucket名称
+=======
+
+>>>>>>> 713de10 (MyBatis Plus的整合和关联查询)
 
 
 

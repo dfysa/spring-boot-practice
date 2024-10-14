@@ -15,13 +15,13 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 public class OssConfig {
-    @Value("${aliyun.oss.endpoint}")
+    @Value("8")
     private String endpoint;
-    @Value("${aliyun.oss.accessKeyId}")
+    @Value("8")
     private String accessKeyId;
-    @Value("${aliyun.oss.accessKeySecret}")
+    @Value("8")
     private String accessKeySecret;
-    @Value("${aliyun.oss.bucketName}")
+    @Value("8")
     private String bucketName;
     @Bean
     public OSS ossClient() {
