@@ -1,0 +1,21 @@
+# 数据源配置
+spring:
+  datasource:
+   driver-class-name: com.mysql.cj.jdbc.Driver
+   url: jdbc:mysql://127.0.0.1:3306/spring_boot?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+   username: root
+   password: lfy31678
+# 配置 MP 框架⽇志级别
+logging:
+  level:
+   com.baomidou.mybatisplus.samples: debug
+# MP 配置
+mybatis-plus:
+  configuration:
+   map-underscore-to-camel-case: true # 驼峰下划线转换
+   log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #打印sql语句,调试⽤
+  global-config:
+   db-config:
+    logic-delete-field: deleted # 全局逻辑删除的实体字段名
+    logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+    logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)

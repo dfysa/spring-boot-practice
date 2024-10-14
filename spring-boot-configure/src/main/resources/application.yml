@@ -70,7 +70,6 @@ aliyun:
 
 
 
-
 jwt:
   secret: "helloworld"
   expiration:  3600000

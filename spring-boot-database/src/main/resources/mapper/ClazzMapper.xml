@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.fyl.springboot.database.mapper.ClazzMapper">
+    <resultMap id="clazzMap" type="Clazz">
+        <id column="clazz_id" property="clazzId" jdbcType="INTEGER"/>
+        <result column="clazz_name" property="clazzName" jdbcType="VARCHAR"/>
+       <association property="teacher" javaType="Teacher">
+           <id column="teacher_id" property="teacherId"/>
+           <result column="teacher_name" property="teacherName"/>
+
+       </association>
+        <collection property="students" ofType="Student">
+            <id column="student_id" property="studentId" jdbcType="INTEGER"/>
+            <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+            <result column="hometown" property="hometown" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <select id="getClazzById" resultMap="clazzMap">
+        SELECT c.clazz_id,c.clazz_name,s.student_id ,s.student_name,s.hometown
+        FROM t_clazz c,
+             t_student s
+        WHERE  c.clazz_id = #{clazzId}
+          AND  c.clazz_id = s.clazz_id
+
+    </select>
+
+    <!-- 结果映射：Teacher -->
+    <resultMap id="teacherMap" type="Teacher">
+        <id column="teacher_id" property="teacherId" jdbcType="INTEGER"/>
+        <result column="teacher_name" property="teacherName" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <!-- 根据班级ID查询教师信息 -->
+    <select id="getTeacherByClazzId" resultMap="teacherMap">
+        SELECT
+            t.teacher_id, t.teacher_name
+        FROM
+            t_teacher t,
+
+            t_clazz c
+        WHERE
+            c.clazz_id = #{clazzId}
+          AND  c.clazz_id = t.clazz_id
+    </select>
+
+
+
+
+    <select id="getClazz" resultMap="clazzMap">
+SELECT c.clazz_id,c.clazz_name,t.teacher_id ,t.teacher_name,s.student_id ,s.student_name,s.hometown
+        from t_clazz c
+left join t_teacher t on c.clazz_id = t.clazz_id
+left join t_student s on c.clazz_id = s.clazz_id
+WHERE c.clazz_id=#{clazzId}
+
+
+
+    </select>
+
+
+</mapper>

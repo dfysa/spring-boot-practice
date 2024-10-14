@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.fyl.springboot.database.mapper.CourseMapper">
+
+    <!-- 课程与学生的映射关系 -->
+    <resultMap id="courseMap" type="top.fyl.springboot.database.entity.Course">
+        <id column="course_id" property="courseId" jdbcType="INTEGER"/>
+        <result column="course_name" property="courseName"/>
+
+        <!-- 学生信息集合 -->
+        <collection property="students" ofType="top.fyl.springboot.database.entity.Student">
+            <id column="student_id" property="studentId" jdbcType="INTEGER"/>
+            <result column="student_name" property="studentName"/>
+            <result column="hometown" property="hometown"/>
+            <result column="birthday" property="birthday"/>
+            <result column="clazz_id" property="clazzId"/>
+
+
+            <!-- 班级信息关联 -->
+            <association property="clazz" javaType="Clazz">
+                <id column="clazz_id" property="clazzId"/>
+                <result column="clazz_name" property="clazzName"/>
+            </association>
+
+
+        </collection>
+    </resultMap>
+
+    <!-- 查询课程及其学生信息 -->
+    <select id="getCourseWithStudents" resultMap="courseMap">
+        SELECT
+            c.course_id, c.course_name,
+            s.student_id, s.student_name, s.hometown, s.birthday, s.clazz_id,
+            cl.clazz_name
+        FROM
+            t_course c
+                LEFT JOIN
+            t_course_student cs ON c.course_id = cs.course_id
+                LEFT JOIN
+            t_student s ON cs.student_id = s.student_id
+                LEFT JOIN
+            t_clazz cl ON s.clazz_id = cl.clazz_id
+        WHERE
+            c.course_id = #{courseId}
+    </select>
+
+</mapper>

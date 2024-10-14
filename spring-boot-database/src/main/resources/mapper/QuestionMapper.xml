@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.fyl.springboot.database.mapper.QuestionMapper">
+
+    <!-- 映射问题字段 -->
+    <resultMap id="QuestionMap" type="Question">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="user_id" property="userId"/>
+        <result column="question_user_name" property="userName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="delete_flag" property="deleteFlag"/>
+
+        <collection property="answers" ofType="Answer">
+            <id column="answer_id" property="answerId"/>
+            <result column="related_question_id" property="relatedQuestionId"/>
+            <result column="parent_id" property="parentId"/>
+            <result column="answer_user_id" property="userId"/>
+            <result column="answer_user_name" property="userName"/>
+            <result column="answer_content" property="answerContent"/>
+            <result column="acreate_time" property="acreateTime"/>
+            <result column="aupdate_time" property="aupdateTime"/>
+            <result column="answer_delete_flag" property="deleteFlag"/>
+        </collection>
+    </resultMap>
+    <!-- 查询所有问题 -->
+    <select id="findAll" resultMap="QuestionMap">
+        SELECT
+            id, title, content, user_id, create_time, update_time, delete_flag
+        FROM questions
+        WHERE delete_flag = 0
+        ORDER BY create_time DESC;
+    </select>
+
+
+    <!-- 查询所有问题及其对应的回答，包括用户的 ID 和姓名 -->
+    <select id="findAllWithAnswers" resultMap="QuestionMap">
+        SELECT
+            q.id, q.title, q.content, q.user_id,
+            u1.username AS question_user_name,  -- 问题发布人姓名
+            q.create_time, q.update_time, q.delete_flag,
+
+            a.answer_id, a.related_question_id, a.parent_id,
+            a.user_id AS answer_user_id,
+            u2.username AS answer_user_name,  -- 回答发布人姓名
+            a.answer_content, a.create_time AS acreate_time,
+            a.update_time AS aupdate_time, a.delete_flag AS answer_delete_flag
+
+        FROM questions q
+                 LEFT JOIN answers a ON q.id = a.related_question_id
+                 LEFT JOIN users u1 ON q.user_id = u1.id  -- 获取问题发布人用户名
+                 LEFT JOIN users u2 ON a.user_id = u2.id  -- 获取回答发布人用户名
+        WHERE q.delete_flag = 0
+        ORDER BY q.create_time DESC;
+    </select>
+
+
+    <select id="findByName" resultType="top.fyl.springboot.database.entity.Question"></select>
+
+    <insert id="insertQuestion" parameterType="top.fyl.springboot.database.entity.Question">
+        INSERT INTO questions (title, content, user_id) VALUES (#{title}, #{content}, #{userId})
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.fyl.springboot.database.mapper.SpecialMapper">
+
+    <!-- 专题和标签的映射关系 -->
+    <resultMap id="specialMap" type="top.fyl.springboot.database.entity.Special">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="introduction" property="introduction" jdbcType="VARCHAR"/>
+        <result column="banner" property="banner" jdbcType="VARCHAR"/>
+        <result column="view_count" property="viewCount" jdbcType="INTEGER"/>
+        <result column="followers_count" property="followersCount" jdbcType="INTEGER"/>
+        <result column="is_following" property="isFollowing" jdbcType="TINYINT"/>
+        <result column="updated" property="updated" jdbcType="BIGINT"/>
+
+        <!-- 标签的集合 -->
+        <collection property="sections" ofType="top.fyl.springboot.database.entity.Section">
+            <id column="section_id" property="id" jdbcType="VARCHAR"/>
+            <result column="special_id" property="specialId" jdbcType="VARCHAR"/>
+            <result column="section_title" property="sectionTitle" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <!-- 查询所有专题及其标签 -->
+    <select id="findAll" resultMap="specialMap">
+        SELECT sp.*, se.*
+        FROM special sp
+                 LEFT JOIN section se ON sp.id = se.special_id
+        ORDER BY sp.updated DESC
+    </select>
+
+</mapper>

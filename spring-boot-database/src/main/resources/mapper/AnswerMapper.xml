@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.fyl.springboot.database.mapper.AnswerMapper">
+
+    <resultMap id="AnswerMap" type="top.fyl.springboot.database.entity.Answer">
+        <id column="answer_id" property="answerId"/>
+        <result column="related_question_id" property="relatedQuestionId"/> <!-- 修改为 related_question_id -->
+        <result column="parent_id" property="parentId"/>
+        <result column="user_id" property="userId"/>
+        <result column="answer_content" property="answerContent"/> <!-- 修改为 answerContent -->
+        <result column="acreate_time" property="acreateTime"/>
+        <result column="aupdate_time" property="aupdateTime"/>
+        <result column="delete_flag" property="deleteFlag"/>
+
+        <!-- 嵌套查询子回复 -->
+        <collection property="replies" ofType="top.fyl.springboot.database.entity.Answer"
+                    select="findByParentId" column="id"/>
+    </resultMap>
+
+    <!-- 查询指定问题的所有回答 -->
+    <select id="findByQuestionId" resultMap="AnswerMap">
+        SELECT * FROM answers WHERE related_question_id = #{relatedQuestionId} AND delete_flag = 0 <!-- 修改为 related_question_id -->
+    </select>
+
+    <!-- 根据父回复 ID 查找子回复 -->
+    <select id="findByParentId" resultMap="AnswerMap">
+        SELECT * FROM answers WHERE parent_id = #{parentId} AND delete_flag = 0
+    </select>
+
+    <insert id="insertAnswer" parameterType="top.fyl.springboot.database.entity.Answer">
+        INSERT INTO answers (related_question_id, parent_id, answer_content, user_id, create_time)
+        VALUES (#{relatedQuestionId}, #{parentId}, #{answerContent}, #{userId}, NOW())
+    </insert>
+</mapper>
