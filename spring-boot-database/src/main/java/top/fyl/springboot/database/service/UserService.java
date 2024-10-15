@@ -13,4 +13,6 @@ public interface UserService {
     String generateToken(User user);
     // 新增方法声明
     User getUserById(int userId);
+    boolean verifyCode(String email, String code);
+    void sendVerificationCode(String email);
 }

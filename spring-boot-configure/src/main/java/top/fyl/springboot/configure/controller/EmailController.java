@@ -13,6 +13,7 @@ import top.fyl.springboot.configure.service.EmailService;
  * @data 2024/9/23 下午8:30
  * @description
  */
+
 @RestController
 @AllArgsConstructor
 public class EmailController {
