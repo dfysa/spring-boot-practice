@@ -3,13 +3,19 @@ package top.fyl.springboot.database.service.impl;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import top.fyl.springboot.database.entity.Answer;
+import top.fyl.springboot.database.entity.Question;
 import top.fyl.springboot.database.entity.User;
+import top.fyl.springboot.database.mapper.AnswerMapper;
+import top.fyl.springboot.database.mapper.QuestionMapper;
 import top.fyl.springboot.database.mapper.UserMapper;
 import top.fyl.springboot.database.service.EmailService;
 import top.fyl.springboot.database.service.UserService;
 import top.fyl.springboot.database.util.JwtUtil;
+import top.fyl.springboot.database.util.MD5Util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -25,19 +31,31 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Resource
-    private RedisTemplate<String, String> redisTemplate;
-
-    @Resource
     private EmailService emailService;
 
     @Resource
     private JwtUtil jwtUtil;
 
+    @Resource
+    private QuestionMapper questionMapper;
+
+    @Resource
+    private AnswerMapper answerMapper;
 
 
+    @Override
+    public List<Question> getQuestionsByUserId(int userId) {
+        return questionMapper.findQuestionsByUserId(userId);
+    }
 
-    public UserServiceImpl(RedisTemplate<String, String> redisTemplate, EmailService emailService) {
-        this.redisTemplate = redisTemplate;
+    @Override
+    public List<Answer> getAnswersByUserId(int userId) {
+        return answerMapper.findAnswersByUserId(userId);
+    }
+
+
+    public UserServiceImpl( EmailService emailService) {
+
         this.emailService = emailService;
     }
 
@@ -59,12 +77,15 @@ public class UserServiceImpl implements UserService {
 
 
 
+    // 注册用户
     @Override
     public void register(User user) {
         User existingUser = userMapper.findByUsername(user.getUsername());
         if (existingUser != null) {
             throw new RuntimeException("用户名已存在");
         }
+        String encryptedPassword = MD5Util.encrypt(user.getPassword());
+        user.setPassword(encryptedPassword);
         userMapper.insertUser(user);
     }
 
@@ -79,15 +100,17 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Override
-    public void sendVerificationCode(String email) {
-        // 直接调用 EmailService 的发送方法
-        emailService.sendVerificationEmail(email);
-    }
 
-    @Override
-    public boolean verifyCode(String email, String code) {
-        String redisCode = redisTemplate.opsForValue().get(email);
-        return code.equals(redisCode);
-    }
+
+//    @Override
+//    public void sendVerificationCode(String email) {
+//        // 直接调用 EmailService 的发送方法
+//        emailService.sendVerificationEmail(email);
+//    }
+
+//    @Override
+//    public boolean verifyCode(String email, String code) {
+//        String redisCode = redisTemplate.opsForValue().get(email);
+//        return code.equals(redisCode);
+//    }
 }

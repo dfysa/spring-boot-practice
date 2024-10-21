@@ -1,6 +1,8 @@
 package top.fyl.springboot.database.service;
 
+import cn.hutool.db.Page;
 import top.fyl.springboot.database.entity.Question;
+import top.fyl.springboot.database.util.PaginationUtil;
 
 import java.util.List;
 
@@ -13,6 +15,7 @@ public interface QuestionService {
     List<Question> getAllQuestions();
     List<Question> searchQuestionsByName(String name);
     void addQuestion(Question question);
-    List<Question> getAllQuestionsWithAnswers();
-
+ PaginationUtil<Question> getAllQuestionsWithAnswers(Page page);
+    Question getQuestionById(int id);
+    void updateQuestionById(Question question);
 }

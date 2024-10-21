@@ -1,5 +1,7 @@
 package top.fyl.springboot.database.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.db.Page;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import top.fyl.springboot.database.entity.Answer;
@@ -8,6 +10,7 @@ import top.fyl.springboot.database.entity.Question;
 import top.fyl.springboot.database.mapper.AnswerMapper;
 import top.fyl.springboot.database.mapper.QuestionMapper;
 import top.fyl.springboot.database.service.QuestionService;
+import top.fyl.springboot.database.util.PaginationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,16 +44,33 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public List<Question> getAllQuestionsWithAnswers() {
-        List<Question> questions = questionMapper.findAllWithAnswers();
+    public PaginationUtil<Question> getAllQuestionsWithAnswers(Page page) {
+        List<Question> questions = questionMapper.findAllWithAnswers(page.getStartPosition(), page.getPageSize());
+        long total = questionMapper.countQuestions();
 
         // 确保所有问题的 answers 字段不为 null
-        for (Question question : questions) {
-            if (question.getAnswers() == null) {
-                question.setAnswers(new ArrayList<>());
+        questions.forEach(q -> {
+            if (q.getAnswers() == null) {
+                q.setAnswers(CollUtil.newArrayList());
             }
+        });
+
+        return new PaginationUtil<>(questions, total, page.getPageSize(), page.getPageNumber());
+    }
+
+    @Override
+    public Question getQuestionById(int id) {
+        Question question = questionMapper.findQuestionById(id);
+        // 确保 answers 不为 null
+        if (question != null && question.getAnswers() == null) {
+            question.setAnswers(new ArrayList<>());
         }
-        return questions;
+        return question;
+    }
+
+    @Override
+    public void updateQuestionById(Question question) {
+        questionMapper.updateQuestionById(question);
     }
 }
 

@@ -25,6 +25,8 @@ public class User {
     private String username;
     private String password;
     private String email;
+    private String avatar;
+    private String accountname;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 

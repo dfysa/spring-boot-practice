@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.fyl.springboot.database.mapper.LikeMapper">
+
+    <!-- 插入点赞记录 -->
+    <insert id="insertLike" parameterType="top.fyl.springboot.database.entity.Like">
+        INSERT INTO likes (user_id, target_id, type, lcreate_time, lupdate_time, ldelete_flag)
+        VALUES (#{userId}, #{targetId}, #{type}, NOW(), NOW(), 0)
+    </insert>
+
+    <!-- 查询点赞记录 -->
+    <select id="findLikeIncludeDeleted" resultType="top.fyl.springboot.database.entity.Like">
+        SELECT *
+        FROM likes
+        WHERE user_id = #{userId} AND target_id = #{targetId} AND type = #{type}
+    </select>
+
+    <!-- 逻辑删除点赞 -->
+    <update id="deleteLike">
+        UPDATE likes
+        SET ldelete_flag = 1, lupdate_time = NOW()
+        WHERE user_id = #{userId} AND target_id = #{targetId} AND type = #{type} AND ldelete_flag = 0
+    </update>
+
+    <update id="restoreLike">
+        UPDATE likes
+        SET ldelete_flag = 0, lupdate_time = NOW()
+        WHERE user_id = #{userId} AND target_id = #{targetId} AND type = #{type}
+    </update>
+
+    <!-- 查询谁点赞了我的问题 -->
+    <select id="findLikesForMyQuestions" resultType="top.fyl.springboot.database.entity.Like">
+        SELECT
+        l.like_id AS likeId,
+        l.user_id AS userId,
+        u.username AS userName,
+        u.accountname,
+        u.avatar,
+        l.target_id AS targetId,
+        l.type,
+        l.lcreate_time AS lcreateTime,
+        l.lupdate_time AS lupdateTime,
+        l.ldelete_flag = 0 AS ldeleteFlag,
+        q.title AS questionTitle  <!-- 追加问题标题 -->
+        FROM likes l
+        LEFT JOIN questions q ON l.target_id = q.id
+        LEFT JOIN users u ON l.user_id = u.id
+        WHERE q.user_id = #{userId}
+        AND l.type = 2
+        AND l.ldelete_flag = 0
+        ORDER BY l.lcreate_time DESC;
+    </select>
+
+    <!-- 查询谁点赞了我的回答 -->
+    <select id="findLikesForMyAnswers" resultType="top.fyl.springboot.database.entity.Like">
+        SELECT
+        l.like_id AS likeId,
+        l.user_id AS userId,
+        u.username AS userName,
+        u.accountname,
+        u.avatar,
+        l.target_id AS targetId,
+        l.type,
+        l.lcreate_time AS lcreateTime,
+        l.lupdate_time AS lupdateTime,
+        l.ldelete_flag = 0 AS ldeleteFlag,
+        a.answer_content AS answerContent,   <!-- 追加答案内容 -->
+        a.related_question_id AS questionId,  <!-- 追加问题ID -->
+        q.title AS questionTitle      <!-- 追加问题标题 -->
+        FROM likes l
+        LEFT JOIN answers a ON l.target_id = a.answer_id
+        LEFT JOIN questions q ON a.related_question_id = q.id
+        LEFT JOIN users u ON l.user_id = u.id
+        WHERE a.user_id = #{userId}
+        AND l.type = 1
+        AND l.ldelete_flag = 0
+        ORDER BY l.lcreate_time DESC;
+    </select>
+
+
+</mapper>

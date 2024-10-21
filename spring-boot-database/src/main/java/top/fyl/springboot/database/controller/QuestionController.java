@@ -1,5 +1,6 @@
 package top.fyl.springboot.database.controller;
 
+import cn.hutool.db.Page;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -7,6 +8,7 @@ import top.fyl.springboot.database.comoon.ResponseResult;
 import top.fyl.springboot.database.entity.Question;
 import top.fyl.springboot.database.service.QuestionService;
 import top.fyl.springboot.database.util.JwtUtil;
+import top.fyl.springboot.database.util.PaginationUtil;
 
 import java.util.List;
 
@@ -73,14 +75,73 @@ public class QuestionController {
     }
 
     @GetMapping("/getall")
-    public ResponseResult getAllQuestions() {
-        List<Question> questions = questionService.getAllQuestionsWithAnswers();
-        String message = questions.isEmpty() ? "无数据" : "数据获取成功";
+    public ResponseResult getAllQuestions(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page hutoolPage = new Page(page, size);
+        PaginationUtil<Question> result = questionService.getAllQuestionsWithAnswers(hutoolPage);
+
+        String message = result.getRecords().isEmpty() ? "无数据" : "数据获取成功";
 
         return ResponseResult.builder()
                 .code(200)
                 .msg(message)
-                .data(questions)
+                .data(result)
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseResult getQuestionById(@PathVariable int id){
+        Question question=questionService.getQuestionById(id);
+        if (question==null){
+            return ResponseResult.builder()
+                    .code(404)
+                    .msg("找不到问题")
+                    .build();
+        }else{
+            return ResponseResult.builder()
+                    .code(200)
+                    .msg("问题查询成功")
+                    .data(question)
+                    .build();
+        }
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseResult updateQuestion(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @PathVariable int id,
+            @RequestBody Question question) {
+
+        // 解析 Token，确保用户有权限
+        String token = authorizationHeader.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        // 检查当前用户是否是问题的发布者
+        Question existingQuestion = questionService.getQuestionById(id);
+        if (existingQuestion == null) {
+            return ResponseResult.builder()
+                    .code(404)
+                    .msg("问题不存在")
+                    .build();
+        }
+        if (!String.valueOf(existingQuestion.getUserId()).equals(userId)) {
+            return ResponseResult.builder()
+                    .code(403)
+                    .msg("没有权限修改此问题")
+                    .build();
+        }
+
+        // 设置问题 ID，确保修改的是指定问题
+        question.setId(id);
+
+        // 执行更新
+        questionService.updateQuestionById(question);
+
+        return ResponseResult.builder()
+                .code(200)
+                .msg("问题修改成功")
                 .build();
     }
 

@@ -27,8 +27,33 @@
         SELECT * FROM answers WHERE parent_id = #{parentId} AND delete_flag = 0
     </select>
 
+
     <insert id="insertAnswer" parameterType="top.fyl.springboot.database.entity.Answer">
         INSERT INTO answers (related_question_id, parent_id, answer_content, user_id, create_time)
         VALUES (#{relatedQuestionId}, #{parentId}, #{answerContent}, #{userId}, NOW())
     </insert>
+
+    <!-- 根据用户ID查询该用户的所有回答及其点赞数 -->
+    <select id="findAnswersByUserId" resultType="top.fyl.springboot.database.entity.Answer">
+        SELECT
+            a.answer_id AS answerId,
+            a.related_question_id AS relatedQuestionId,
+            a.user_id AS userId,
+            a.answer_content AS answerContent,
+            a.create_time AS acreateTime,
+            a.update_time AS aupdateTime,
+            u.username AS userName,
+            (
+                SELECT COUNT(*)
+                FROM likes l
+                WHERE l.target_id = a.answer_id AND l.type = 1 AND l.ldelete_flag = 0
+            ) AS answerLikeCount
+        FROM answers a
+                 LEFT JOIN users u ON a.user_id = u.id
+        WHERE a.user_id = #{userId} AND a.delete_flag = 0
+        ORDER BY a.create_time DESC;
+    </select>
+
+
+
 </mapper>

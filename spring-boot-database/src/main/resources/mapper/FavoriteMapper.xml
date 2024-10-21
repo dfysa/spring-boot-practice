@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.fyl.springboot.database.mapper.FavoriteMapper">
+
+    <insert id="insertFavorite" parameterType="top.fyl.springboot.database.entity.Favorite">
+        INSERT INTO favorites (user_id, question_id, create_time, update_time, delete_flag)
+        VALUES (#{userId}, #{questionId}, NOW(), NOW(), 0)
+    </insert>
+
+    <select id="findFavoriteIncludeDeleted" resultType="top.fyl.springboot.database.entity.Favorite">
+        SELECT *
+        FROM favorites
+        WHERE user_id = #{userId} AND question_id = #{questionId}
+    </select>
+
+    <update id="deleteFavorite">
+        UPDATE favorites
+        SET delete_flag = 1, update_time = NOW()
+        WHERE user_id = #{userId} AND question_id = #{questionId} AND delete_flag = 0
+    </update>
+
+    <update id="restoreFavorite">
+        UPDATE favorites
+        SET delete_flag = 0, update_time = NOW()
+        WHERE user_id = #{userId} AND question_id = #{questionId}
+    </update>
+
+    <select id="findFavoritesByUserId" resultType="top.fyl.springboot.database.entity.Favorite">
+        SELECT f.favorite_id, f.user_id, f.question_id, f.create_time, f.update_time, f.delete_flag,
+               q.title, q.content, q.create_time AS question_create_time
+        FROM favorites f
+                 LEFT JOIN questions q ON f.question_id = q.id
+        WHERE f.user_id = #{userId} AND f.delete_flag = 0
+        ORDER BY f.create_time DESC;
+    </select>
+
+
+</mapper>

@@ -15,7 +15,9 @@ import top.fyl.springboot.configure.service.QrCodeService;
 public class QrCodeController {
     private final QrCodeService qrCodeService;
     @GetMapping("/qrcode")
+
     public void qrcode() {
         qrCodeService.generateQrCode();
     }
 }
+

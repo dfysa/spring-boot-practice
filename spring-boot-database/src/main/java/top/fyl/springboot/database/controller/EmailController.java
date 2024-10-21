@@ -1,5 +1,6 @@
 package top.fyl.springboot.database.controller;
 
+import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,20 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 @RequestMapping("/api/v1/email")
 public class EmailController {
-
+    @Resource
     private final EmailService emailService;
+
+//    // 发送验证码
+//    @PostMapping("/sendCode")
+//    public ResponseEntity<String> sendCode(@RequestParam String email) {
+//        emailService.sendVerificationEmail(email);
+//        return ResponseEntity.ok("验证码已发送");
+//    }
 
     // 发送验证码
     @PostMapping("/sendCode")
-    public ResponseEntity<String> sendCode(@RequestParam String email) {
-        emailService.sendVerificationEmail(email);
+    public ResponseEntity<String> sendCode(@RequestBody Mail mail) {
+        emailService.sendVerificationEmail(mail.getTo()); // 发送验证码
         return ResponseEntity.ok("验证码已发送");
     }
 
@@ -42,5 +50,11 @@ public class EmailController {
         } else {
             return ResponseEntity.status(400).body("验证码错误或已过期");
         }
+    }
+
+
+    @PostMapping("/mail")
+    public void sendEmail(@RequestBody Mail mail) {
+        emailService.sendSimpleEmail(mail.getTo(), mail.getSubject(), mail.getBody());
     }
 }

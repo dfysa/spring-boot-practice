@@ -16,8 +16,9 @@
     </insert>
 
     <select id="findById" parameterType="int" resultType="top.fyl.springboot.database.entity.User">
-        SELECT id, username, email, create_time, update_time
+        SELECT id, username, email, create_time, update_time,avatar,accountname
         FROM users
         WHERE id = #{id} AND delete_flag = 0
     </select>
+
 </mapper>

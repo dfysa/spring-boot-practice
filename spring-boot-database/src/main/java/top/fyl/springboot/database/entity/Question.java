@@ -26,8 +26,10 @@ public class Question {
     private String title;
     private String content;
     private long userId;
+    private String avatar;
     // 回答发布人用户名（查询时动态获取）
     private String userName;
+    private String accountname;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
@@ -36,4 +38,5 @@ public class Question {
     private boolean deleteFlag;
 
     private List<Answer> answers;
+    private int questionLikeCount;  // 问题的点赞数
 }

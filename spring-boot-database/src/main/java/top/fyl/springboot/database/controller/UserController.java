@@ -7,11 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import top.fyl.springboot.database.comoon.ResponseResult;
+import top.fyl.springboot.database.entity.Answer;
+import top.fyl.springboot.database.entity.Question;
 import top.fyl.springboot.database.entity.User;
 import top.fyl.springboot.database.service.EmailService;
 import top.fyl.springboot.database.service.UserService;
+import top.fyl.springboot.database.util.JwtUtil;
+import top.fyl.springboot.database.util.MD5Util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,12 +33,19 @@ public class UserController {
 
     @Resource
     private final EmailService emailService;
+
     @Resource
-    private final RedisTemplate<String, String> redisTemplate;
+    private  MD5Util md5Util;
+    @Resource
+    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseResult login(@RequestBody User user) {
-        User loginUser = userService.login(user.getUsername(), user.getPassword());
+
+        // MD5 加密用户输入的密码
+        String encryptedPassword = md5Util.encrypt(user.getPassword());
+
+        User loginUser = userService.login(user.getUsername(),encryptedPassword);
 
         // 生成 Token
         String token = userService.generateToken(loginUser);
@@ -50,12 +62,12 @@ public class UserController {
                 .build();
     }
 
-    // 发送验证码
-    @PostMapping("/sendCode")
-    public String sendCode(@RequestParam String email) {
-        userService.sendVerificationCode(email);
-        return "验证码已发送";
-    }
+//    // 发送验证码
+//    @PostMapping("/sendCode")
+//    public String sendCode(@RequestParam String email) {
+//        userService.sendVerificationCode(email);
+//        return "验证码已发送";
+//    }
 
     // 用户注册接口
     @PostMapping("/register")
@@ -73,7 +85,6 @@ public class UserController {
         userService.register(user);
         return ResponseEntity.ok("注册成功");
     }
-
     // 新增根据 userId 查询用户信息的接口
     @GetMapping("/{userId}")
     public ResponseResult getUserById(@PathVariable int userId) {
@@ -90,4 +101,27 @@ public class UserController {
                 .data(user)
                 .build();
     }
+
+    @GetMapping("/activities")
+    public ResponseResult getUserActivities(
+            @RequestHeader("Authorization") String authorizationHeader) {
+
+        String token = authorizationHeader.replace("Bearer ", "");
+        int userId = Integer.parseInt(jwtUtil.extractUserId(token));
+
+        List<Question> questions = userService.getQuestionsByUserId(userId);
+        List<Answer> answers = userService.getAnswersByUserId(userId);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("questions", questions);
+        data.put("answers", answers);
+        System.out.println(data);
+
+        return ResponseResult.builder()
+                .code(200)
+                .msg("查询成功")
+                .data(data)
+                .build();
+    }
+
 }

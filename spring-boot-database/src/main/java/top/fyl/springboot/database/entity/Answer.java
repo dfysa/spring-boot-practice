@@ -29,7 +29,9 @@ public class Answer {
     private int userId;
     // 回答发布人用户名（查询时动态获取）
     private String userName;
+    private String accountname;
     private String answerContent;
+    private String avatar; // 问题发布人头像
     @Column(name = "create_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date acreateTime;
@@ -41,6 +43,8 @@ public class Answer {
 
     // 子回复
     private List<Answer> replies;
+
+    private int answerLikeCount;  // 回答的点赞数
 }
 
 

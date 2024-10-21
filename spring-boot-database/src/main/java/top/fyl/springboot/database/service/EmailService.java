@@ -1,6 +1,5 @@
 package top.fyl.springboot.database.service;
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -11,64 +10,48 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author dfysa
- * @data 2024/10/14 下午9:23
- * @description
- */
 @Service
 @Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
     private final Map<String, String> verificationCodes = new ConcurrentHashMap<>(); // 存储邮箱和验证码
-    private final ThreadPoolTaskScheduler scheduler; // 线程池管理的定时任务
+    private final ThreadPoolTaskScheduler scheduler; // 管理定时任务
 
     @Value("${spring.mail.username}")
     private String from;
 
-    // 构造函数注入
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
 
-        // 初始化线程池定时任务
+        // 初始化线程池管理的定时任务
         this.scheduler = new ThreadPoolTaskScheduler();
         this.scheduler.setPoolSize(1);
         this.scheduler.initialize();
     }
 
-    // 发送验证码并在10分钟后过期
-    public void sendVerificationEmail(String to) {
-        String code = generateVerificationCode();
-
-        // 存储验证码
-        verificationCodes.put(to, code);
-
-        // 定时任务：10分钟后移除验证码
-        scheduleCodeExpiry(to);
-
-        // 构建邮件信息
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);
-        message.setTo(to);
-        message.setSubject("注册验证码");
-        message.setText("您的注册验证码是：" + code + "。请在10分钟内使用。");
-
-        // 发送邮件
-        mailSender.send(message);
-        log.info("验证码已发送到: {}", to);
-    }
-
     // 生成6位随机验证码
     private String generateVerificationCode() {
         return String.format("%06d", new Random().nextInt(999999));
+    }
+
+    // 发送验证码邮件并缓存验证码
+    public void sendVerificationEmail(String to) {
+        String code = generateVerificationCode(); // 生成验证码
+
+        // 存储验证码并设置10分钟后过期
+        verificationCodes.put(to, code);
+        scheduleCodeExpiry(to); // 定时任务删除验证码
+
+        // 构建邮件内容
+        String subject = "验证码";
+        String body = "您的注册验证码是：" + code + "。请在10分钟内使用。";
+
+        // 发送邮件
+        sendSimpleEmail(to, subject, body);
     }
 
     // 定时任务：10分钟后删除验证码
@@ -83,5 +66,16 @@ public class EmailService {
     public boolean verifyCode(String to, String code) {
         String storedCode = verificationCodes.get(to);
         return code.equals(storedCode);
+    }
+
+    // 通用邮件发送方法
+    public void sendSimpleEmail(String to, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
+        log.info("邮件已发送到: {}", to);
     }
 }
