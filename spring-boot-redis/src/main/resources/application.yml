@@ -21,9 +21,9 @@ fyl:
     ccp:
       serverIp: app.cloopen.com
       port: 8883
-      accountSId:
-      accountToken:
-      appId:
+      accountSId: 2c94811c8cd4da0a018ef1824a3666c8
+      accountToken: fa20cedddc7b4f7aaceb816e1167e227
+      appId: 2c94811c8cd4da0a018ef1824bc666cf
       templateId: 1
 
 # 配置 MP 框架⽇志级别

@@ -18,7 +18,10 @@ public interface UserMapper {
     void insertUser(User user);
     // 新增根据 userId 查询用户信息的方法
     User findById(int userId);
-
+    void updateUser(User user);
+    void updateAvatar(int userId, String avatarUrl); // 头像单独修改
+    // 新增根据 userId 获取用户密码的方法
+    String findPasswordById(int userId);
 
 
 }

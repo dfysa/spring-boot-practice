@@ -18,7 +18,10 @@ public interface QuestionMapper {
     List<Question> findByName(@Param("name") String name);  // 返回类型必须是 List<Question>
 
     void insertQuestion(Question question);
-    List<Question> findAllWithAnswers(@Param("offset") int offset, @Param("size") int size);
+    List<Question> findAllWithAnswers(@Param("offset") int offset, @Param("size") int size, @Param("title") String title);
+    List<Question> findAllOnlyWithAnswers(@Param("offset") int offset, @Param("size") int size);
+
+
     long countQuestions();  // 查询问题总数
     Question findQuestionById(int id);
 
@@ -26,5 +29,9 @@ public interface QuestionMapper {
     void updateQuestionById(Question question);
 
     List<Question> findQuestionsByUserId(@Param("userId") int userId);
+
+    // 新增逻辑删除问题
+    void deleteQuestionById(@Param("id") long id, @Param("userId") long userId);
+
 }
 

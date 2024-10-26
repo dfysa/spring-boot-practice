@@ -1,6 +1,7 @@
 package top.fyl.springboot.database.service;
 
 
+import org.springframework.stereotype.Service;
 import top.fyl.springboot.database.entity.Article;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
  * @data 8/10/2024 下午2:21
  * @description
  */
+@Service
 public interface ArticleService {
     Article saveArticle(Article article);
 

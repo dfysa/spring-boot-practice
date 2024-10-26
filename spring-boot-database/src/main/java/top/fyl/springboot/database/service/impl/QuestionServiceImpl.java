@@ -43,12 +43,17 @@ public class QuestionServiceImpl implements QuestionService {
         questionMapper.insertQuestion(question);
     }
 
+
     @Override
-    public PaginationUtil<Question> getAllQuestionsWithAnswers(Page page) {
-        List<Question> questions = questionMapper.findAllWithAnswers(page.getStartPosition(), page.getPageSize());
+    public void deleteQuestionById(long id, long userId) {
+        questionMapper.deleteQuestionById(id, userId);
+    }
+
+    @Override
+    public PaginationUtil<Question> getAllQuestionsWithAnswers(Page page, String title) {
+        List<Question> questions = questionMapper.findAllWithAnswers(page.getStartPosition(), page.getPageSize(), title);
         long total = questionMapper.countQuestions();
 
-        // 确保所有问题的 answers 字段不为 null
         questions.forEach(q -> {
             if (q.getAnswers() == null) {
                 q.setAnswers(CollUtil.newArrayList());
@@ -57,6 +62,22 @@ public class QuestionServiceImpl implements QuestionService {
 
         return new PaginationUtil<>(questions, total, page.getPageSize(), page.getPageNumber());
     }
+
+
+    @Override
+    public PaginationUtil<Question> getAllQuestionsWithAnswers(Page page) {
+        List<Question> questions = questionMapper.findAllOnlyWithAnswers(page.getStartPosition(), page.getPageSize());
+        long total = questionMapper.countQuestions();
+
+        questions.forEach(q -> {
+            if (q.getAnswers() == null) {
+                q.setAnswers(CollUtil.newArrayList());
+            }
+        });
+
+        return new PaginationUtil<>(questions, total, page.getPageSize(), page.getPageNumber());
+    }
+
 
     @Override
     public Question getQuestionById(int id) {

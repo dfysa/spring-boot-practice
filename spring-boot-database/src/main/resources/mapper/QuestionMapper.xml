@@ -42,45 +42,90 @@
     </select>
 
 
-    <!-- 查询所有问题及其对应的回答，包括用户的ID、姓名和点赞数 -->
     <select id="findAllWithAnswers" resultMap="QuestionMap">
         SELECT
-            q.id, q.title, q.content, q.user_id,
-            u1.accountname AS question_user_name,  -- 问题发布人姓名
-            u1.avatar AS avatar,  -- 新增获取问题发布人头像
-            q.create_time, q.update_time, q.delete_flag,
-            COALESCE(qlike.like_num, 0) AS questionLikeCount,  -- 问题的点赞数
+        q.id, q.title, q.content, q.user_id,
+        u1.accountname AS question_user_name,
+        u1.avatar AS avatar,
+        q.create_time, q.update_time, q.delete_flag,
+        COALESCE(qlike.like_num, 0) AS questionLikeCount,
 
-            a.answer_id, a.related_question_id, a.parent_id,
-            a.user_id AS answer_user_id,
-            u2.accountname AS answer_user_name,  -- 回答发布人姓名
-            u2.avatar AS answer_user_avatar,  -- 新增获取回答发布人头像
-            a.answer_content, a.create_time AS acreate_time,
-            a.update_time AS aupdate_time, a.delete_flag AS answer_delete_flag,
-            COALESCE(alike.like_num, 0) AS answerLikeCount  -- 回答的点赞数
+        a.answer_id, a.related_question_id, a.parent_id,
+        a.user_id AS answer_user_id,
+        u2.accountname AS answer_user_name,
+        u2.avatar AS answer_user_avatar,
+        a.answer_content, a.create_time AS acreate_time,
+        a.update_time AS aupdate_time, a.delete_flag AS answer_delete_flag,
+        COALESCE(alike.like_num, 0) AS answerLikeCount
 
         FROM questions q
-                 LEFT JOIN (
-            SELECT target_id, COUNT(*) AS like_num
-            FROM likes
-            WHERE type = 2 AND ldelete_flag = 0  -- type=2 表示问题的点赞
-            GROUP BY target_id
+        LEFT JOIN (
+        SELECT target_id, COUNT(*) AS like_num
+        FROM likes
+        WHERE type = 2 AND ldelete_flag = 0
+        GROUP BY target_id
         ) AS qlike ON q.id = qlike.target_id
 
-                 LEFT JOIN answers a ON q.id = a.related_question_id
+        LEFT JOIN answers a ON q.id = a.related_question_id  AND a.delete_flag = 0  -- 添加 delete_flag 条件
 
-                 LEFT JOIN (
-            SELECT target_id, COUNT(*) AS like_num
-            FROM likes
-            WHERE type = 1 AND ldelete_flag = 0  -- type=1 表示回答的点赞
-            GROUP BY target_id
+        LEFT JOIN (
+        SELECT target_id, COUNT(*) AS like_num
+        FROM likes
+        WHERE type = 1 AND ldelete_flag = 0
+        GROUP BY target_id
         ) AS alike ON a.answer_id = alike.target_id
 
-                 LEFT JOIN users u1 ON q.user_id = u1.id  -- 获取问题发布人用户名
-                 LEFT JOIN users u2 ON a.user_id = u2.id  -- 获取回答发布人用户名
+        LEFT JOIN users u1 ON q.user_id = u1.id
+        LEFT JOIN users u2 ON a.user_id = u2.id
 
         WHERE q.delete_flag = 0
-        ORDER BY q.create_time DESC;
+        <if test="title != null and title != ''">
+            AND q.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        ORDER BY q.create_time DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="findAllOnlyWithAnswers" resultMap="QuestionMap">
+        SELECT
+        q.id, q.title, q.content, q.user_id,
+        u1.accountname AS question_user_name,
+        u1.avatar AS avatar,
+        q.create_time, q.update_time, q.delete_flag,
+        COALESCE(qlike.like_num, 0) AS questionLikeCount,
+
+        a.answer_id, a.related_question_id, a.parent_id,
+        a.user_id AS answer_user_id,
+        u2.accountname AS answer_user_name,
+        u2.avatar AS answer_user_avatar,
+        a.answer_content, a.create_time AS acreate_time,
+        a.update_time AS aupdate_time, a.delete_flag AS answer_delete_flag,
+        COALESCE(alike.like_num, 0) AS answerLikeCount
+
+        FROM questions q
+        LEFT JOIN (
+        SELECT target_id, COUNT(*) AS like_num
+        FROM likes
+        WHERE type = 2 AND ldelete_flag = 0
+        GROUP BY target_id
+        ) AS qlike ON q.id = qlike.target_id
+
+        LEFT JOIN answers a ON q.id = a.related_question_id  AND a.delete_flag = 0  -- 添加 delete_flag 条件
+
+        LEFT JOIN (
+        SELECT target_id, COUNT(*) AS like_num
+        FROM likes
+        WHERE type = 1 AND ldelete_flag = 0
+        GROUP BY target_id
+        ) AS alike ON a.answer_id = alike.target_id
+
+        LEFT JOIN users u1 ON q.user_id = u1.id
+        LEFT JOIN users u2 ON a.user_id = u2.id
+
+        WHERE q.delete_flag = 0
+
+        ORDER BY q.create_time DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
 
@@ -118,7 +163,7 @@
             GROUP BY target_id
         ) AS question_likes ON q.id = question_likes.target_id
 
-                 LEFT JOIN answers a ON q.id = a.related_question_id
+                 LEFT JOIN answers a ON q.id = a.related_question_id AND a.delete_flag = 0  -- 添加 delete_flag 条件
 
                  LEFT JOIN (
             SELECT target_id, COUNT(*) AS like_num
@@ -143,6 +188,14 @@
         WHERE id = #{id} AND delete_flag = 0;
     </update>
 
+
+    <!-- 逻辑删除问题 -->
+    <update id="deleteQuestionById">
+        UPDATE questions
+        SET delete_flag = 1
+        WHERE id = #{id} AND user_id = #{userId};
+    </update>
+
     <!-- 根据用户ID查询该用户的所有问题及其点赞数和回答数 -->
     <select id="findQuestionsByUserId" resultType="top.fyl.springboot.database.entity.Question">
         SELECT
@@ -164,8 +217,15 @@
         ORDER BY q.create_time DESC;
     </select>
     <!-- 查询总问题数 -->
+    <!-- 查询总问题数，支持模糊查询 -->
     <select id="countQuestions" resultType="long">
-        SELECT COUNT(*) FROM questions;
+        SELECT COUNT(*)
+        FROM questions
+        WHERE delete_flag = 0
+        <if test="title != null and title != ''">
+            AND title LIKE CONCAT('%', #{title}, '%')
+        </if>
     </select>
+
 
 </mapper>

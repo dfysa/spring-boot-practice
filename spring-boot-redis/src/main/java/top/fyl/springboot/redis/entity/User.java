@@ -22,7 +22,7 @@ public class User {
     private Integer bonus;
     private String remark;
     /**
-     * @see top.mqxu.springboot.redis.enums.AccountStatusEnum
+     * @see top.fyl.springboot.redis.enums.AccountStatusEnum
      */
     private Integer enabled;
     @TableField(value = "delete_flag", fill = FieldFill.INSERT)

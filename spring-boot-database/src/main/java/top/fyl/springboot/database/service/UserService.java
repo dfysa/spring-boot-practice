@@ -1,5 +1,6 @@
 package top.fyl.springboot.database.service;
 
+import org.springframework.stereotype.Service;
 import top.fyl.springboot.database.entity.Answer;
 import top.fyl.springboot.database.entity.Question;
 import top.fyl.springboot.database.entity.User;
@@ -11,6 +12,7 @@ import java.util.List;
  * @data 2024/10/12 下午10:35
  * @description
  */
+@Service
 public interface UserService {
     User login(String username, String password);
     void register(User user);
@@ -20,8 +22,10 @@ public interface UserService {
 
     List<Question> getQuestionsByUserId(int userId);
     List<Answer> getAnswersByUserId(int userId);
-
-
+    void updateUserInfo(User user);
+    void updateAvatar(int userId, String avatarUrl);
+    // 新增方法声明：验证用户密码
+    boolean verifyPassword(int userId, String inputPassword);
 
 //    boolean verifyCode(String email, String code);
 //    void sendVerificationCode(String email);

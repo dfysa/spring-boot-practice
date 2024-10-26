@@ -14,8 +14,9 @@ import top.fyl.springboot.redis.service.SmsService;
  * @description
  */
 @RestController
-@RequestMapping
+
 @AllArgsConstructor
+@RequestMapping("/sms")
 public class SmsController {
 
     private final SmsService smsService;

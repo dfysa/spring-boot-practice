@@ -1,5 +1,6 @@
 package top.fyl.springboot.database.service;
 
+import org.springframework.stereotype.Service;
 import top.fyl.springboot.database.entity.Answer;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
  * @data 2024/10/13 下午2:04
  * @description
  */
+@Service
 public interface AnswerService {
     List<Answer> findByQuestionId(Long relatedQuestionId); // 修改为 relatedQuestionId
     List<Answer> findByParentId(Long parentId);

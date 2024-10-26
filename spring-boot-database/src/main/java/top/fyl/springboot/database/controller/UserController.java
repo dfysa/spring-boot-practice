@@ -35,7 +35,7 @@ public class UserController {
     private final EmailService emailService;
 
     @Resource
-    private  MD5Util md5Util;
+    private MD5Util md5Util;
     @Resource
     private JwtUtil jwtUtil;
 
@@ -45,7 +45,7 @@ public class UserController {
         // MD5 加密用户输入的密码
         String encryptedPassword = md5Util.encrypt(user.getPassword());
 
-        User loginUser = userService.login(user.getUsername(),encryptedPassword);
+        User loginUser = userService.login(user.getUsername(), encryptedPassword);
 
         // 生成 Token
         String token = userService.generateToken(loginUser);
@@ -85,6 +85,7 @@ public class UserController {
         userService.register(user);
         return ResponseEntity.ok("注册成功");
     }
+
     // 新增根据 userId 查询用户信息的接口
     @GetMapping("/{userId}")
     public ResponseResult getUserById(@PathVariable int userId) {
@@ -122,6 +123,57 @@ public class UserController {
                 .msg("查询成功")
                 .data(data)
                 .build();
+    }
+
+    @PostMapping("/update")
+    public ResponseResult updateUserInfo( @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody User user) {
+        String token = authorizationHeader.replace("Bearer ", "");
+        int userId = Integer.parseInt(jwtUtil.extractUserId(token));
+        user.setId(userId);
+        userService.updateUserInfo(user);
+        return ResponseResult.builder()
+                .code(200)
+                .msg("用户信息更新成功")
+                .build();
+    }
+
+    @PostMapping("/update-avatar")
+    public ResponseResult updateAvatar(@RequestParam int userId, @RequestParam String avatarUrl) {
+        userService.updateAvatar(userId, avatarUrl);
+        return ResponseResult.builder()
+                .code(200)
+                .msg("头像更新成功")
+                .build();
+    }
+
+    @PostMapping("/validate-password")
+    public ResponseResult validatePassword(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody Map<String, String> passwordData) {
+
+        String token = authorizationHeader.replace("Bearer ", "");
+        String inputPassword = passwordData.get("password");
+
+        // 从 token 中提取 userId
+        int userId = Integer.parseInt(jwtUtil.extractUserId(token));
+
+        // 验证密码是否正确
+        boolean isPasswordCorrect = userService.verifyPassword(userId, inputPassword);
+
+        if (isPasswordCorrect) {
+            return ResponseResult.builder()
+                    .code(200)
+                    .msg("密码验证成功")
+                    .data(Map.of("valid", true))
+                    .build();
+        } else {
+            return ResponseResult.builder()
+                    .code(401)
+                    .msg("密码验证失败")
+                    .data(Map.of("valid", false))
+                    .build();
+        }
     }
 
 }
